@@ -1,8 +1,13 @@
 function [training_data_x , training_data_y , testing_data_x , testing_data_y] = generate_data 
-    % Try to loading data 
+    % Try to loading data
     training_data_path = 'training.data'
     testing_data_path = 'testing.data'
-    load()
+    if exists(training_data_path) ~= 0 && exists(testing_data_path) ~= 0 
+        load(training_data_path , 'training_data_x' , 'training_data_y') ;
+        load(testing_data_path , 'testing_data_x' , 'testing_data_y') ;
+        disp('loaded dataset from file ' + trainging_data_path + ' ' + testing_data_path ) ;
+        return ;
+    end
     % define class 
     CLASS_1 = 1 ;
     CLASS_2 = 2 ;
@@ -47,5 +52,8 @@ function [training_data_x , training_data_y , testing_data_x , testing_data_y] =
                       ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_2 ; ...
                       ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_3 ; ...
                       ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_4 ] ;
- 
+   disp('saving data to file .') ;
+   save(training_data_path , 'training_data_x' , 'training_data_y') ;
+   save(testing_data_path , 'testing_data_x' , 'testing_data_y') ;
+   disp('done') ;
 end
