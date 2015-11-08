@@ -1,21 +1,22 @@
-function [training_data_x , training_data_y , testing_data_x , testing_data_y] = generate_data 
+function [training_data_x , training_data_y , testing_data_x , testing_data_y] = generate_data(always_generate) 
     % Try to loading data
-    training_data_path = 'training.data'
-    testing_data_path = 'testing.data'
-    if exists(training_data_path) ~= 0 && exists(testing_data_path) ~= 0 
+    training_data_path = 'training.mat' ;
+    testing_data_path = 'testing.mat';
+    if exist(training_data_path,'file') ~= 0 && exist(testing_data_path , 'file') ~= 0 && ~always_generate
         load(training_data_path , 'training_data_x' , 'training_data_y') ;
         load(testing_data_path , 'testing_data_x' , 'testing_data_y') ;
-        disp('loaded dataset from file ' + trainging_data_path + ' ' + testing_data_path ) ;
+        disp(['loaded dataset from file ' ,training_data_path , ' ' ,testing_data_path ]) ;
         return ;
     end
-    % define class 
+    % define class
+    CLASS_NUM = 4 ;
     CLASS_1 = 1 ;
     CLASS_2 = 2 ;
     CLASS_3 = 3 ;
     CLASS_4 = 4 ;
     % define trainging and testing data size
-    TRAINING_DATA_PER_CLASS_SIZE = 10 ;
-    TESTING_DATA_PER_CLASS_SIZE = 2 ;
+    TRAINING_DATA_PER_CLASS_SIZE = 1000 ;
+    TESTING_DATA_PER_CLASS_SIZE = 100 ;
     PER_CLASS_SIZE = TRAINING_DATA_PER_CLASS_SIZE + TESTING_DATA_PER_CLASS_SIZE ;
     % generate data
     % % class 1 data 
@@ -38,20 +39,36 @@ function [training_data_x , training_data_y , testing_data_x , testing_data_y] =
     % % generate data set
     training_data_x = [ class_1_data(1:TRAINING_DATA_PER_CLASS_SIZE , :) ; ...
                       class_2_data(1:TRAINING_DATA_PER_CLASS_SIZE , :) ; ...
+                      class_4_data(1:TRAINING_DATA_PER_CLASS_SIZE , :) ; ...
                       class_3_data(1:TRAINING_DATA_PER_CLASS_SIZE , :) ; ...
-                      class_4_data(1:TRAINING_DATA_PER_CLASS_SIZE , :) ] ;
-   testing_data_x = [ class_1_data(TRAINING_DATA_PER_CLASS_SIZE + 1 : end , : ) ; ...
+                       ] ;
+   training_data_y = [ ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_1 ; ...
+                       ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_2 ; ...
+                       ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_4 ; ...
+                       ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_3 ; ...
+                        ] ;
+   testing_data_x =  [class_1_data(TRAINING_DATA_PER_CLASS_SIZE + 1 : end , : ) ; ...
                       class_2_data(TRAINING_DATA_PER_CLASS_SIZE + 1 : end , : ) ; ...
                       class_3_data(TRAINING_DATA_PER_CLASS_SIZE + 1 : end , : ) ; ...
                       class_4_data(TRAINING_DATA_PER_CLASS_SIZE + 1 : end , : ) ] ;
-   training_data_y = [ ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_1 ; ...
-                       ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_2 ; ...
-                       ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_3 ; ...
-                       ones(TRAINING_DATA_PER_CLASS_SIZE , 1) * CLASS_4 ] ;
    testing_data_y = [ ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_1 ; ... 
                       ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_2 ; ...
                       ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_3 ; ...
                       ones(TESTING_DATA_PER_CLASS_SIZE , 1) * CLASS_4 ] ;
+                  
+   %% training data should be random !!
+   % 如果不随机，就是25%...
+   
+   disp('shuffling training data') ;
+   permutation_idx = randperm(TRAINING_DATA_PER_CLASS_SIZE * CLASS_NUM) ;
+   randomed_training_data_x = ones(size(training_data_x)) ;
+   randomed_training_data_y = ones(size(training_data_y)) ;
+   for i = 1 : TRAINING_DATA_PER_CLASS_SIZE * CLASS_NUM 
+        randomed_training_data_x(i,:) = training_data_x(permutation_idx(i),:) ;
+        randomed_training_data_y(i,:) = training_data_y(permutation_idx(i),:) ;
+   end
+   training_data_x = randomed_training_data_x ;
+   training_data_y = randomed_training_data_y ;
    disp('saving data to file .') ;
    save(training_data_path , 'training_data_x' , 'training_data_y') ;
    save(testing_data_path , 'testing_data_x' , 'testing_data_y') ;
